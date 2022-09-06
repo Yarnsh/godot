@@ -81,6 +81,7 @@ ShaderTypes::ShaderTypes() {
 	shader_modes[VS::SHADER_SPATIAL].functions["vertex"].built_ins["VIEW_RIGHT"] = constt(ShaderLanguage::TYPE_INT);
 	shader_modes[VS::SHADER_SPATIAL].functions["vertex"].built_ins["VIEWPORT_SIZE"] = constt(ShaderLanguage::TYPE_VEC2);
 	shader_modes[VS::SHADER_SPATIAL].functions["vertex"].built_ins["OUTPUT_IS_SRGB"] = constt(ShaderLanguage::TYPE_BOOL);
+	shader_modes[VS::SHADER_SPATIAL].functions["vertex"].built_ins["DEPTH_TEXTURE"] = ShaderLanguage::TYPE_SAMPLER2D;
 
 	shader_modes[VS::SHADER_SPATIAL].functions["fragment"].built_ins["VERTEX"] = constt(ShaderLanguage::TYPE_VEC3);
 	shader_modes[VS::SHADER_SPATIAL].functions["fragment"].built_ins["FRAGCOORD"] = constt(ShaderLanguage::TYPE_VEC4);

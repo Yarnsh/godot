@@ -68,6 +68,8 @@ layout(location = 12) in highp vec4 instance_custom_data;
 
 #endif
 
+uniform highp sampler2D depth_buffer; // Yarnsh custom line, probably not thought out correctly
+
 layout(std140) uniform SceneData { // ubo:0
 
 	highp mat4 projection_matrix;
