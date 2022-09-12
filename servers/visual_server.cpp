@@ -2114,6 +2114,8 @@ void VisualServer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("environment_set_fog_height", "env", "enable", "min_height", "max_height", "height_curve"), &VisualServer::environment_set_fog_height);
 
+	ClassDB::bind_method(D_METHOD("environment_set_material_override", "env", "mat"), &VisualServer::environment_set_material_override);
+
 	ClassDB::bind_method(D_METHOD("scenario_create"), &VisualServer::scenario_create);
 	ClassDB::bind_method(D_METHOD("scenario_set_debug", "scenario", "debug_mode"), &VisualServer::scenario_set_debug);
 	ClassDB::bind_method(D_METHOD("scenario_set_environment", "scenario", "environment"), &VisualServer::scenario_set_environment);

@@ -800,6 +800,14 @@ float Environment::get_fog_height_curve() const {
 	return fog_height_curve;
 }
 
+void Environment::set_material_override(const Ref<Material> &p_material) {
+	material_override = p_material;
+	VS::get_singleton()->environment_set_material_override(environment, p_material.is_valid() ? p_material->get_rid() : RID());
+}
+Ref<Material> Environment::get_material_override() const {
+	return material_override;
+}
+
 void Environment::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_background", "mode"), &Environment::set_background);
 	ClassDB::bind_method(D_METHOD("set_sky", "sky"), &Environment::set_sky);
@@ -1134,6 +1142,12 @@ void Environment::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "adjustment_contrast", PROPERTY_HINT_RANGE, "0.01,8,0.01"), "set_adjustment_contrast", "get_adjustment_contrast");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "adjustment_saturation", PROPERTY_HINT_RANGE, "0.01,8,0.01"), "set_adjustment_saturation", "get_adjustment_saturation");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "adjustment_color_correction", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_adjustment_color_correction", "get_adjustment_color_correction");
+
+	ClassDB::bind_method(D_METHOD("set_material_override", "material"), &Environment::set_material_override);
+	ClassDB::bind_method(D_METHOD("get_material_override"), &Environment::get_material_override);
+
+	ADD_GROUP("Material", "material_");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material_override", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
 
 	BIND_ENUM_CONSTANT(BG_KEEP);
 	BIND_ENUM_CONSTANT(BG_CLEAR_COLOR);

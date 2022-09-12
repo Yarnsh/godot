@@ -806,6 +806,8 @@ public:
 	virtual void environment_set_fog_depth(RID p_env, bool p_enable, float p_depth_begin, float p_depth_end, float p_depth_curve, bool p_transmit, float p_transmit_curve) = 0;
 	virtual void environment_set_fog_height(RID p_env, bool p_enable, float p_min_height, float p_max_height, float p_height_curve) = 0;
 
+	virtual void environment_set_material_override(RID p_env, RID p_mat) = 0;
+
 	/* SCENARIO API */
 
 	virtual RID scenario_create() = 0;

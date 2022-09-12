@@ -851,6 +851,11 @@ void RasterizerSceneGLES2::environment_set_fog_height(RID p_env, bool p_enable, 
 	env->fog_height_max = p_max_height;
 	env->fog_height_curve = p_height_curve;
 }
+
+void RasterizerSceneGLES2::environment_set_material_override(RID p_env, RID p_mat) {
+	// I don't plan on using GLES2 so this new thing isnt supported
+}
+
 bool RasterizerSceneGLES2::is_environment(RID p_env) {
 	return environment_owner.owns(p_env);
 }

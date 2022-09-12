@@ -455,6 +455,8 @@ public:
 	FUNC7(environment_set_fog_depth, RID, bool, float, float, float, bool, float)
 	FUNC5(environment_set_fog_height, RID, bool, float, float, float)
 
+	FUNC2(environment_set_material_override, RID, RID)
+
 	FUNCRID(scenario)
 
 	FUNC2(scenario_set_debug, RID, ScenarioDebugMode)

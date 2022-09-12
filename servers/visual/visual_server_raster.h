@@ -526,6 +526,7 @@ public:
 	BIND5(environment_set_fog, RID, bool, const Color &, const Color &, float)
 	BIND7(environment_set_fog_depth, RID, bool, float, float, float, bool, float)
 	BIND5(environment_set_fog_height, RID, bool, float, float, float)
+	BIND2(environment_set_material_override, RID, RID)
 
 	/* SCENARIO API */
 

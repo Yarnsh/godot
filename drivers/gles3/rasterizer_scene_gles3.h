@@ -453,6 +453,8 @@ public:
 		float fog_height_max;
 		float fog_height_curve;
 
+		RID material_override;
+
 		Environment() :
 				bg_mode(VS::ENV_BG_CLEAR_COLOR),
 				sky_custom_fov(0.0),
@@ -525,7 +527,8 @@ public:
 				fog_height_enabled(false),
 				fog_height_min(10),
 				fog_height_max(0),
-				fog_height_curve(1) {
+				fog_height_curve(1),
+				material_override(RID()) {
 		}
 	};
 
@@ -559,6 +562,7 @@ public:
 	virtual void environment_set_fog(RID p_env, bool p_enable, const Color &p_color, const Color &p_sun_color, float p_sun_amount);
 	virtual void environment_set_fog_depth(RID p_env, bool p_enable, float p_depth_begin, float p_depth_end, float p_depth_curve, bool p_transmit, float p_transmit_curve);
 	virtual void environment_set_fog_height(RID p_env, bool p_enable, float p_min_height, float p_max_height, float p_height_curve);
+	virtual void environment_set_material_override(RID p_env, RID p_mat);
 
 	virtual bool is_environment(RID p_env);
 
@@ -829,7 +833,7 @@ public:
 
 	void _render_list(RenderList::Element **p_elements, int p_element_count, const Transform &p_view_transform, const CameraMatrix &p_projection, RasterizerStorageGLES3::Sky *p_sky, bool p_reverse_cull, bool p_alpha_pass, bool p_shadow, bool p_directional_add, bool p_directional_shadows);
 
-	_FORCE_INLINE_ void _add_geometry(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, int p_material, bool p_depth_pass, bool p_shadow_pass);
+	_FORCE_INLINE_ void _add_geometry(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, int p_material, bool p_depth_pass, bool p_shadow_pass, RID env_override_material);
 
 	_FORCE_INLINE_ void _add_geometry_with_material(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_shadow_pass);
 
@@ -843,7 +847,7 @@ public:
 	void _copy_screen(bool p_invalidate_color = false, bool p_invalidate_depth = false);
 	void _copy_texture_to_front_buffer(GLuint p_texture); //used for debug
 
-	void _fill_render_list(InstanceBase **p_cull_result, int p_cull_count, bool p_depth_pass, bool p_shadow_pass);
+	void _fill_render_list(InstanceBase **p_cull_result, int p_cull_count, bool p_depth_pass, bool p_shadow_pass, RID env_override_material);
 
 	void _blur_effect_buffer();
 	void _render_mrts(Environment *env, const CameraMatrix &p_cam_projection);

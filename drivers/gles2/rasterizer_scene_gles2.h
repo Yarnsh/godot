@@ -411,6 +411,7 @@ public:
 		float fog_height_min;
 		float fog_height_max;
 		float fog_height_curve;
+		RID material_override;
 
 		Environment() :
 				bg_mode(VS::ENV_BG_CLEAR_COLOR),
@@ -459,7 +460,8 @@ public:
 				fog_height_enabled(false),
 				fog_height_min(10),
 				fog_height_max(0),
-				fog_height_curve(1) {
+				fog_height_curve(1),
+				material_override(RID()) {
 		}
 	};
 
@@ -493,6 +495,8 @@ public:
 	virtual void environment_set_fog(RID p_env, bool p_enable, const Color &p_color, const Color &p_sun_color, float p_sun_amount);
 	virtual void environment_set_fog_depth(RID p_env, bool p_enable, float p_depth_begin, float p_depth_end, float p_depth_curve, bool p_transmit, float p_transmit_curve);
 	virtual void environment_set_fog_height(RID p_env, bool p_enable, float p_min_height, float p_max_height, float p_height_curve);
+
+	virtual void environment_set_material_override(RID p_env, RID p_mat);
 
 	virtual bool is_environment(RID p_env);
 

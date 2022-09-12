@@ -944,6 +944,13 @@ void RasterizerSceneGLES3::environment_set_fog_height(RID p_env, bool p_enable, 
 	env->fog_height_curve = p_height_curve;
 }
 
+void RasterizerSceneGLES3::environment_set_material_override(RID p_env, RID p_mat) {
+	Environment *env = environment_owner.getornull(p_env);
+	ERR_FAIL_COND(!env);
+
+	env->material_override = p_mat;
+}
+
 bool RasterizerSceneGLES3::is_environment(RID p_env) {
 	return environment_owner.owns(p_env);
 }
@@ -2183,9 +2190,10 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 	state.scene_shader.set_conditional(SceneShaderGLES3::USE_OPAQUE_PREPASS, false);
 }
 
-void RasterizerSceneGLES3::_add_geometry(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, int p_material, bool p_depth_pass, bool p_shadow_pass) {
+void RasterizerSceneGLES3::_add_geometry(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, int p_material, bool p_depth_pass, bool p_shadow_pass, RID env_override_material) {
 	RasterizerStorageGLES3::Material *m = nullptr;
 	RID m_src = p_instance->material_override.is_valid() ? p_instance->material_override : (p_material >= 0 ? p_instance->materials[p_material] : p_geometry->material);
+	m_src = env_override_material != RID() ? env_override_material : m_src;
 
 	if (state.debug_draw == VS::VIEWPORT_DEBUG_DRAW_OVERDRAW) {
 		m_src = default_overdraw_material;
@@ -3040,7 +3048,7 @@ void RasterizerSceneGLES3::_copy_texture_to_front_buffer(GLuint p_texture) {
 	storage->shaders.copy.set_conditional(CopyShaderGLES3::DISABLE_ALPHA, false);
 }
 
-void RasterizerSceneGLES3::_fill_render_list(InstanceBase **p_cull_result, int p_cull_count, bool p_depth_pass, bool p_shadow_pass) {
+void RasterizerSceneGLES3::_fill_render_list(InstanceBase **p_cull_result, int p_cull_count, bool p_depth_pass, bool p_shadow_pass, RID env_override_material) {
 	current_geometry_index = 0;
 	current_material_index = 0;
 	state.used_sss = false;
@@ -3061,7 +3069,7 @@ void RasterizerSceneGLES3::_fill_render_list(InstanceBase **p_cull_result, int p
 				for (int j = 0; j < ssize; j++) {
 					int mat_idx = inst->materials[j].is_valid() ? j : -1;
 					RasterizerStorageGLES3::Surface *s = mesh->surfaces[j];
-					_add_geometry(s, inst, nullptr, mat_idx, p_depth_pass, p_shadow_pass);
+					_add_geometry(s, inst, nullptr, mat_idx, p_depth_pass, p_shadow_pass, env_override_material);
 				}
 
 				//mesh->last_pass=frame;
@@ -3084,7 +3092,7 @@ void RasterizerSceneGLES3::_fill_render_list(InstanceBase **p_cull_result, int p
 
 				for (int j = 0; j < ssize; j++) {
 					RasterizerStorageGLES3::Surface *s = mesh->surfaces[j];
-					_add_geometry(s, inst, multi_mesh, -1, p_depth_pass, p_shadow_pass);
+					_add_geometry(s, inst, multi_mesh, -1, p_depth_pass, p_shadow_pass, env_override_material);
 				}
 
 			} break;
@@ -3092,7 +3100,7 @@ void RasterizerSceneGLES3::_fill_render_list(InstanceBase **p_cull_result, int p
 				RasterizerStorageGLES3::Immediate *immediate = storage->immediate_owner.getptr(inst->base);
 				ERR_CONTINUE(!immediate);
 
-				_add_geometry(immediate, inst, nullptr, -1, p_depth_pass, p_shadow_pass);
+				_add_geometry(immediate, inst, nullptr, -1, p_depth_pass, p_shadow_pass, env_override_material);
 
 			} break;
 			case VS::INSTANCE_PARTICLES: {
@@ -3113,7 +3121,7 @@ void RasterizerSceneGLES3::_fill_render_list(InstanceBase **p_cull_result, int p
 
 					for (int k = 0; k < ssize; k++) {
 						RasterizerStorageGLES3::Surface *s = mesh->surfaces[k];
-						_add_geometry(s, inst, particles, -1, p_depth_pass, p_shadow_pass);
+						_add_geometry(s, inst, particles, -1, p_depth_pass, p_shadow_pass, env_override_material);
 					}
 				}
 
@@ -4020,6 +4028,7 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
 	storage->info.render.object_count += p_cull_count;
 
 	Environment *env = environment_owner.getornull(p_environment);
+	RID env_override_material = env ? env->material_override : RID();
 	ShadowAtlas *shadow_atlas = shadow_atlas_owner.getornull(p_shadow_atlas);
 	ReflectionAtlas *reflection_atlas = reflection_atlas_owner.getornull(p_reflection_atlas);
 
@@ -4112,7 +4121,7 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		render_list.clear();
-		_fill_render_list(p_cull_result, p_cull_count, true, false);
+		_fill_render_list(p_cull_result, p_cull_count, true, false, env_override_material);
 		render_list.sort_by_key(false);
 		state.scene_shader.set_conditional(SceneShaderGLES3::RENDER_DEPTH, true);
 		_render_list(render_list.elements, render_list.element_count, p_cam_transform, p_cam_projection, nullptr, false, false, true, false, false);
@@ -4138,7 +4147,7 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
 	bool use_mrt = false;
 
 	render_list.clear();
-	_fill_render_list(p_cull_result, p_cull_count, false, false);
+	_fill_render_list(p_cull_result, p_cull_count, false, false, env_override_material);
 	//
 
 	glEnable(GL_BLEND);
@@ -4758,7 +4767,7 @@ void RasterizerSceneGLES3::render_shadow(RID p_light, RID p_shadow_atlas, int p_
 	}
 
 	render_list.clear();
-	_fill_render_list(p_cull_result, p_cull_count, true, true);
+	_fill_render_list(p_cull_result, p_cull_count, true, true, RID());
 
 	render_list.sort_by_depth(false); //shadow is front to back for performance
 
