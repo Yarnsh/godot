@@ -1,3 +1,7 @@
+# CUSTOM STUFF
+### Material override on Environment
+Environments now have an extra field, "material override". When a camera with this environment is rendering objects, it will override all materials with the one configured in this field.
+
 # Godot Engine
 
 <p align="center">
